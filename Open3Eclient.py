@@ -292,6 +292,7 @@ parser.add_argument("-mfstr", "--mqttformatstring", type=str, help="mqtt formats
 parser.add_argument("-muser", "--mqttuser", type=str, help="mqtt username:password")
 parser.add_argument("-j", "--json", action='store_true', help="send JSON structure")
 parser.add_argument("-v", "--verbose", action='store_true', help="verbose info")
+parser.add_argument("-d", "--duration", action='store_true', help="show duration of read/write cycle")
 args = parser.parse_args()
 
 
@@ -356,12 +357,15 @@ try:
         jobs = eval_complex_list(args.read)
         mlvl = 0  # only val 
         if(len(jobs) > 1): mlvl |= 1  # show did nr
+        TsStart = time.time()
         while(True):
             for ecudid in jobs:
                 ensure_ecu(ecudid[0])
                 if(len(dicEcus) > 1): mlvl |= 4  # show ecu addr
                 readbydid(addr=ecudid[0], did=ecudid[1], raw=args.raw, msglvl=mlvl)
                 time.sleep(0.02)
+            if (args.duration == True):
+                print("Duration: {dur:.3f} sec".format(dur=time.time() - tsStart))
             if(args.timestep != None):
                 time.sleep(float(eval(args.timestep)))
             else:
